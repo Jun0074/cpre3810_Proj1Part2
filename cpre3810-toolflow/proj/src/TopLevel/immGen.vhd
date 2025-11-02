@@ -26,6 +26,14 @@ architecture Behavioral of immGen is
   signal s_imm_U_ext : std_logic_vector(31 downto 0);
   signal s_imm_J_ext : std_logic_vector(31 downto 0);
 
+  component sign_extenderNto32
+  generic(N : integer := 12);
+  port (
+    i_data_in  : in  std_logic_vector(N-1 downto 0);
+    o_data_out : out std_logic_vector(31 downto 0)
+  );
+end component;
+
 begin
 
   -- Extract raw immediates
@@ -35,12 +43,12 @@ begin
   s_imm_U <= i_instr(31 downto 12) & (11 downto 0 => '0'); -- Upper immediate
   s_imm_J <= i_instr(31) & i_instr(19 downto 12) & i_instr(20) & i_instr(30 downto 21) & "0"; -- LSB=0
 
-  -- Sign-extend each immediate using the sign extender component
-  U1: entity work.sign_extenderNto32 generic map (N => 12) port map(i_data_in => s_imm_I, o_data_out => s_imm_I_ext);
-  U2: entity work.sign_extenderNto32 generic map (N => 12) port map(i_data_in => s_imm_S, o_data_out => s_imm_S_ext);
-  U3: entity work.sign_extenderNto32 generic map (N => 13) port map(i_data_in => s_imm_B, o_data_out => s_imm_B_ext);
-  U4: entity work.sign_extenderNto32 generic map (N => 32) port map(i_data_in => s_imm_U, o_data_out => s_imm_U_ext);
-  U5: entity work.sign_extenderNto32 generic map (N => 21) port map(i_data_in => s_imm_J, o_data_out => s_imm_J_ext);
+  -- Sign-extend each immediate using the sign extender component FIXED to use componenet inst instead of entity instantiation
+  U1: sign_extenderNto32 generic map (N => 12) port map(i_data_in => s_imm_I, o_data_out => s_imm_I_ext);
+  U2: sign_extenderNto32 generic map (N => 12) port map(i_data_in => s_imm_S, o_data_out => s_imm_S_ext);
+  U3: sign_extenderNto32 generic map (N => 13) port map(i_data_in => s_imm_B, o_data_out => s_imm_B_ext);
+  U4: sign_extenderNto32 generic map (N => 32) port map(i_data_in => s_imm_U, o_data_out => s_imm_U_ext);
+  U5: sign_extenderNto32 generic map (N => 21) port map(i_data_in => s_imm_J, o_data_out => s_imm_J_ext);
 
   -- Select the correct sign-extended immediate
   process(i_immType, s_imm_I_ext, s_imm_S_ext, s_imm_B_ext, s_imm_U_ext, s_imm_J_ext)
@@ -56,4 +64,3 @@ begin
   end process;
 
 end Behavioral;
-

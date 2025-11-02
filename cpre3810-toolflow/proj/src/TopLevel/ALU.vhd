@@ -21,7 +21,7 @@ entity ALU is
   );
 end entity;
 
-architecture rtl of ALU is
+architecture dataflow of ALU is
 
 --ALUOp encodings (matchgit  control spreadsheet)
   constant ALU_AND  : std_logic_vector(3 downto 0) := "0000"; -- and/andi
@@ -39,9 +39,10 @@ architecture rtl of ALU is
   signal A_s, B_s : signed(31 downto 0);               -- signed view
   signal A_u, B_u : unsigned(31 downto 0);             -- unsigned view
   signal shamt    : std_logic_vector(4 downto 0);      -- shift amt = B[4:0]
-  signal res      : std_logic_vector(31 downto 0);     -- result bus
-  signal ov_add   : std_logic;           -- add overflow
-  signal ov_sub   : std_logic;           -- sub overflow
+  signal result      : std_logic_vector(31 downto 0);     -- result bus
+  --signal ov_add   : std_logic;           -- add overflow
+  --signal ov_sub   : std_logic;           -- sub overflow
+  signal sum, diff : signed(31 downto 0); --(Add/Sub result)
 
   -- ---- barrel shifter I/O ----
   signal sh_right : std_logic;            -- 0=left, 1=right
@@ -81,69 +82,34 @@ begin
       o_Y     => sh_out                                 -- shifted out
     );
 
-  -- main combinational ALU
-  process(i_A, i_B, i_ALUOp, A_s, B_s, A_u, B_u, sh_out)
-    variable sum  : signed(31 downto 0);               -- A+B
-    variable diff : signed(31 downto 0);               -- A-B
-   
-  begin
-    sum  := A_s + B_s;                                 -- precompute add
-    diff := A_s - B_s;                                 -- precompute sub
+    sum  <= A_s + B_s;
+    diff <= A_s - B_s;
 
-    case i_ALUOp is                         -- select op
-      when ALU_AND   => res <= i_A and i_B;             -- AND
-      when ALU_OR    => res <= i_A or  i_B;             -- OR
-      when ALU_XOR   => res <= i_A xor i_B;             -- XOR
-      when ALU_ADD   => res <= std_logic_vector(sum);   -- ADD
-      when ALU_SUB   => res <= std_logic_vector(diff);  -- SUB
-      when ALU_SLL   => res <= sh_out;                  -- SLL (A << B[4:0])
-      when ALU_SRL   => res <= sh_out;                  -- SRL (A >> B[4:0])
-      when ALU_SRA   => res <= sh_out;                  -- SRA (A >>> B[4:0])
-      when ALU_SLT   =>                                  -- SLT (signed)
-        if A_s < B_s then
-          res <= (31 downto 1 => '0') & '1';           -- set to 1
-        else
-          res <= (others => '0');                      -- set to 0
-        end if;
-      when ALU_SLTU  =>                                  -- SLTU (unsigned)
-        if A_u < B_u then
-          res <= (31 downto 1 => '0') & '1';           -- set to 1
-        else
-          res <= (others => '0');                      -- set to 0
-        end if;
-      when others    => res <= (others => '0');          -- safe default
-    end case;
+     result <= 
+         (i_A and i_B)                  when i_ALUOp = ALU_AND  else
+         (i_A or  i_B)                  when i_ALUOp = ALU_OR   else
+         std_logic_vector(sum)          when i_ALUOp = ALU_ADD  else
+         std_logic_vector(diff)         when i_ALUOp = ALU_SUB  else
+         (i_A xor i_B)                  when i_ALUOp = ALU_XOR  else
+         sh_out                         when i_ALUOp = ALU_SLL  or i_ALUOp = ALU_SRL or i_ALUOp = ALU_SRA  else
+         (31 downto 1 => '0') & '1'     when (i_ALUOp = ALU_SLT  and A_s < B_s) or (i_ALUOp = ALU_SLTU and A_u < B_u) else (others => '0');  -- default
+
 
     -- flags driven from selected result / operands
+    o_LT  <= '1' when A_s < B_s else '0';
+    o_LTU <= '1' when A_u < B_u else '0';
  
 
 
     -- overflow per 2's-comp rules (ADD/SUB)
     --ov_add <= '1' when (i_ALUOp = ALU_ADD) and ((A_s(31) = B_s(31)) and (sum(31)  /= A_s(31))) else '0';
     --ov_sub <= '1' when (i_ALUOp = ALU_SUB) and ((A_s(31) /= B_s(31)) and (diff(31) /= A_s(31))) else '0';
-  end process;
-  process (A_s, B_s, A_u, B_u)
-begin
-    -- Signed compare flag
-    if A_s < B_s then
-        o_LT <= '1';
-    else
-        o_LT <= '0';
-    end if;
-
-    -- Unsigned compare flag
-    if A_u < B_u then
-        o_LTU <= '1';
-    else
-        o_LTU <= '0';
-    end if;
-end process;
 
   -- connect result/overflow to outputs
-  o_Y    <= res;                -- result out
+  o_Y    <= result;                -- result out
  -- o_Ovfl <= ov_add or ov_sub;   -- overflow out
 
   -- DO NOT TOUCH THIS LINE! It is intended to left outside of the combinational process
-  o_Zero <= '1' when res = x"00000000" else '0';      -- Zero flag
+  o_Zero <= '1' when result = x"00000000" else '0';      -- Zero flag
 
 end architecture;
