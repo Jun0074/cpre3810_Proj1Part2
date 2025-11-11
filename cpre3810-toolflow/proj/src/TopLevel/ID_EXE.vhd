@@ -20,6 +20,8 @@ entity ID_EXE is
     i_PC         : in  std_logic_vector(N-1 downto 0);
     i_PCplus4    : in  std_logic_vector(N-1 downto 0);
     i_Imm        : in  std_logic_vector(31 downto 0);
+    i_funct3      : in  std_logic_vector(2 downto 0); -- added for ALU control
+    i_isJALR    : in  std_logic;
 
     -- Control (from decode)
     i_ALUSrcA    : in  std_logic;
@@ -44,6 +46,8 @@ entity ID_EXE is
     idex_PC      : out std_logic_vector(N-1 downto 0);
     idex_PCplus4 : out std_logic_vector(N-1 downto 0);
     idex_Imm     : out std_logic_vector(31 downto 0);
+    idex_funct3   : out std_logic_vector(2 downto 0); -- added for ALU control  
+    idex_isJALR  : out std_logic;
 
     -- Control
     idex_ALUSrcA   : out std_logic;
@@ -88,7 +92,7 @@ architecture structural of ID_EXE is
   signal s_ResultSrc_D : std_logic_vector(1 downto 0);
   signal s_LoadType_D  : std_logic_vector(2 downto 0);
   signal s_ALUSrcA_D, s_ALUSrc_D, s_Branch_D, s_Jump_D,
-         s_MemWrite_D, s_MemRead_D, s_RegWrite_D, s_Halt_D : std_logic;
+         s_MemWrite_D, s_MemRead_D, s_RegWrite_D, s_Halt_D, s_isJALR_D: std_logic;
 begin
   -- Flush = bubble: zero ONLY control signals; data still latches.
   s_ALUSrcA_D  <= '0'                       when i_FLUSH='1' else i_ALUSrcA;
@@ -102,6 +106,7 @@ begin
   s_RegWrite_D <= '0'                       when i_FLUSH='1' else i_RegWrite;
   s_LoadType_D <= (others => '0')           when i_FLUSH='1' else i_LoadType;
   s_Halt_D     <= '0'                       when i_FLUSH='1' else i_Halt;
+  s_isJALR_D    <= '0'             when i_FLUSH='1' else i_isJALR;
 
   -- Data registers
   r_oRS1 : RegN
@@ -144,6 +149,11 @@ begin
     port map(i_CLK => i_CLK, i_RST => i_RST, i_WE => i_WE,
              i_D => i_Imm, o_Q => idex_Imm);
 
+  r_funct3 : RegN
+    generic map(N => 3)
+    port map(i_CLK => i_CLK, i_RST => i_RST, i_WE => i_WE,
+            i_D => i_funct3, o_Q => idex_funct3);
+
   -- Control registers (flush-gated)
   r_ALUSrcA : dffg
     port map(i_CLK => i_CLK, i_RST => i_RST, i_WE => i_WE,
@@ -165,6 +175,10 @@ begin
   r_Jump : dffg
     port map(i_CLK => i_CLK, i_RST => i_RST, i_WE => i_WE,
              i_D => s_Jump_D, o_Q => idex_Jump);
+
+  r_isJALR : dffg
+  port map(i_CLK=>i_CLK, i_RST=>i_RST, i_WE=>i_WE,
+           i_D=>s_isJALR_D, o_Q=>idex_isJALR);
 
   r_ResultSrc : RegN
     generic map(N => 2)
