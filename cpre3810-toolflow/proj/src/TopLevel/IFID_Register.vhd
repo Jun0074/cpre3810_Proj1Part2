@@ -30,15 +30,15 @@ architecture structure of IFID_Register is
   signal s_holding_Instr        : std_logic_vector(31 downto 0);
 
 begin
-  process(iCLK)
+  process(i_CLK)
   begin
-    if rising_edge(iCLK) then
-      if iRST = '1' then
+    if rising_edge(i_CLK) then
+      if i_RST = '1' then
 	-- Reset holding values
         s_holding_PC      <= (others => '0'); -- Set PC to 0 until no longer reset
         s_holding_Instr   <= NOP_32;
 
-      elsif iFLUSH = '1' then
+      elsif i_FLUSH = '1' then
         -- Convert the next ID stage cycle into a bubble (Don't update holding PC value)
         s_holding_Instr   <= NOP_32;
       
