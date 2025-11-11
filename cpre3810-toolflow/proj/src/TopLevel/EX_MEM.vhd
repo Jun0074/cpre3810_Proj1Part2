@@ -31,7 +31,7 @@ generic ( N : integer := 32 );
     i_Halt        : in  std_logic;
 
     -- Latched outputs to MEM stage
-    exmem_ALU       : out std_logic_vector(31 downto 0);
+    exmem_ALUResult : out std_logic_vector(31 downto 0);
     exmem_oRS2      : out std_logic_vector(31 downto 0);
     exmem_rd        : out std_logic_vector(4 downto 0);
     exmem_PCplus4   : out std_logic_vector(N-1 downto 0);
@@ -70,7 +70,7 @@ architecture structural of EX_MEM is
   end component;
 begin
   -- 32-bit datapath registers
-   r_ALU    : RegN generic map(N=>32) port map(i_CLK=>i_CLK,i_RST=>i_RST,i_WE=>i_WE, i_D=>i_ALUResult,     o_Q=>exmem_ALU);
+   r_ALU    : RegN generic map(N=>32) port map(i_CLK=>i_CLK,i_RST=>i_RST,i_WE=>i_WE, i_D=>i_ALUResult,     o_Q=>exmem_ALUResult);
 
   r_PC4    : RegN generic map(N=>N ) port map(i_CLK=>i_CLK,i_RST=>i_RST,i_WE=>i_WE, i_D=>i_PCplus4, o_Q=>exmem_PCplus4);
 
