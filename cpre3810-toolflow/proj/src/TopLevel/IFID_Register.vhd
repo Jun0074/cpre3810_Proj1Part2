@@ -9,15 +9,21 @@ entity IFID_Register is
   port (
     i_CLK     : in  std_logic;
     i_RST     : in  std_logic;                 -- synchronous reset (active high)
+    i_WE      : in  std_logic;                 -- '1' = latch; '0' = hold (stall) added
     i_FLUSH   : in  std_logic;                 -- insert bubble/NOP this cycle (active high)
 
     -- inputs from IF stage
     i_PC      : in  std_logic_vector(N-1 downto 0);
+    i_PCplus4  : in  std_logic_vector(N-1 downto 0); -- added for branch/jump calculation
     i_Instr   : in  std_logic_vector(31 downto 0);
 
     -- outputs to ID stage
-    o_PC      : out std_logic_vector(N-1 downto 0);
-    o_Instr   : out std_logic_vector(31 downto 0)
+    -- o_PC      : out std_logic_vector(N-1 downto 0);
+    -- o_Instr   : out std_logic_vector(31 downto 0)
+    -- changed to match naming convention
+    ifid_PC       : out std_logic_vector(N-1 downto 0);
+    ifid_PCplus4  : out std_logic_vector(N-1 downto 0); --added for input i_PCplus4
+    ifid_Inst     : out std_logic_vector(31 downto 0)
   );
 end IFID_Register;
 
@@ -26,33 +32,35 @@ architecture structure of IFID_Register is
   -- For RISC-V, NOP = ADDI x0, x0, 0 = 0x00000013
   constant NOP_32 : std_logic_vector(31 downto 0) := x"00000013";
 
-  signal s_holding_PC : std_logic_vector(N-1 downto 0);
-  signal s_holding_Instr        : std_logic_vector(31 downto 0);
+  component RegN is
+    generic(N : integer := 32);
+      port(i_CLK: in std_logic; i_RST: in std_logic; i_WE: in std_logic;
+          i_D  : in std_logic_vector(N-1 downto 0);
+          o_Q  : out std_logic_vector(N-1 downto 0));
+  end component;
+
+  --signal s_holding_PC : std_logic_vector(N-1 downto 0);
+  --signal s_holding_Instr        : std_logic_vector(31 downto 0);
+  -- signals renamed to match output names
+  signal s_Instr_D : std_logic_vector(31 downto 0);
 
 begin
-  process(i_CLK)
-  begin
-    if rising_edge(i_CLK) then
-      if i_RST = '1' then
-	-- Reset holding values
-        s_holding_PC      <= (others => '0'); -- Set PC to 0 until no longer reset
-        s_holding_Instr   <= NOP_32;
+  -- Changed to dataflow/structural, do not use procedure as TA suggested
+  s_Instr_D <= NOP_32 when i_FLUSH='1' else i_Instr;
 
-      elsif i_FLUSH = '1' then
-        -- Convert the next ID stage cycle into a bubble (Don't update holding PC value)
-        s_holding_Instr   <= NOP_32;
-      
-      else
-        -- Normal pipeline advance
-        s_holding_PC      <= i_PC;
-        s_holding_Instr   <= i_Instr;
+  r_PC : RegN
+    generic map(N => N)
+    port map(i_CLK => i_CLK, i_RST => i_RST, i_WE => i_WE,
+             i_D => i_PC, o_Q => ifid_PC);
 
-      end if;
-    end if;
-  end process;
+  r_PC4 : RegN
+    generic map(N => N)
+    port map(i_CLK => i_CLK, i_RST => i_RST, i_WE => i_WE,
+             i_D => i_PCplus4, o_Q => ifid_PCplus4);
 
-  -- Update output with holding signals
-  o_PC      <= s_holding_PC;
-  o_Instr   <= s_holding_Instr;
+  r_Inst : RegN
+    generic map(N => 32)
+    port map(i_CLK => i_CLK, i_RST => i_RST, i_WE => i_WE,
+             i_D => s_Instr_D, o_Q => ifid_Inst);
 
 end structure;
