@@ -52,6 +52,7 @@ architecture structure of RISCV_Processor is
   signal s_Inst         : std_logic_vector(N-1 downto 0); -- TODO: use this signal as the instruction signal 
 
   -- Required halt signal -- for simulation
+  signal s_Halt_Pipeline : std_logic;  -- internal halt signal from control unit to be passed through pipeline
   signal s_Halt         : std_logic;  -- TODO: this signal indicates to the simulation that intended program execution has completed. (Opcode: 01 0100)
 
   -- Required overflow signal -- for overflow exception detection
@@ -395,7 +396,7 @@ begin
       s_Jump     <= s_Ctrl(5);
       s_Branch   <= s_Ctrl(4);
       s_LoadType <= s_Ctrl(3 downto 1);
-      s_Halt     <= s_Ctrl(0);
+      s_Halt_Pipeline     <= s_Ctrl(0);
 
   
   -- Connect s_RegWrAddr to address in instructions
@@ -446,7 +447,7 @@ begin
       i_ALUOp => s_ALUOp, i_Branch => s_Branch, i_Jump => s_Jump,
       i_ResultSrc => s_ResultSrc,
       i_MemWrite => s_MemWrite, i_MemRead => s_MemRead,
-      i_RegWrite => s_RegWrite, i_LoadType => s_LoadType, i_Halt => s_Halt,
+      i_RegWrite => s_RegWrite, i_LoadType => s_LoadType, i_Halt => s_Halt_Pipeline,
 
       idex_oRS1 => idex_oRS1, idex_oRS2 => idex_oRS2,
       idex_rd => idex_rd, idex_rs1 => idex_rs1, idex_rs2 => idex_rs2,
@@ -607,7 +608,8 @@ begin
   s_RegWrAddr <= memwb_rd;
 
 -- Ensure that s_Halt is connected to an output control signal produced from decoding the Halt instruction (Opcode: 1110011)
-  oHalt <= memwb_Halt;
+  s_Halt <= memwb_Halt;
+  oHalt  <= s_Halt;
 
 
 end structure;
