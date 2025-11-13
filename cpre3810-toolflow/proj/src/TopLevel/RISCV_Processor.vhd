@@ -364,7 +364,7 @@ begin
     port map(
       i_CLK => iCLK, i_RST => iRST,
       i_WE  => '1',                  -- no stall yet
-      i_FLUSH => '0',         --0 for SW-- flush on taken branch/jump 
+      i_FLUSH => s_PCsrc,         --0 for SW-- flush on taken branch/jump 
       i_PC => s_NextInstAddr,
       i_PCplus4 => s_PCplus4,
       i_Instr => s_Inst,
