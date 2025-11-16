@@ -1,5 +1,5 @@
 Assembler report for toolflow
-Sat Oct 25 03:22:05 2025
+Wed Nov 12 22:30:24 2025
 Quartus Prime Version 20.1.1 Build 720 11/11/2020 SJ Standard Edition
 
 
@@ -38,7 +38,7 @@ https://fpgasoftware.intel.com/eula.
 +---------------------------------------------------------------+
 ; Assembler Summary                                             ;
 +-----------------------+---------------------------------------+
-; Assembler Status      ; Successful - Sat Oct 25 03:22:05 2025 ;
+; Assembler Status      ; Successful - Wed Nov 12 22:30:24 2025 ;
 ; Revision Name         ; toolflow                              ;
 ; Top-level Entity Name ; RISCV_Processor                       ;
 ; Family                ; Cyclone IV E                          ;
@@ -79,13 +79,13 @@ https://fpgasoftware.intel.com/eula.
 +-----------------------------------------------------------------------------+----------------+----------------+
 
 
-+----------------------------------------------------------------------------------------------------+
-; Assembler Generated Files                                                                          ;
-+----------------------------------------------------------------------------------------------------+
-; File Name                                                                                          ;
-+----------------------------------------------------------------------------------------------------+
-; /home/teoh/cpre381/cpre3810_Proj1/cpre3810-toolflow/internal/QuartusWork/output_files/toolflow.sof ;
-+----------------------------------------------------------------------------------------------------+
++--------------------------------------------------------------------------------------------------------------------------------+
+; Assembler Generated Files                                                                                                      ;
++--------------------------------------------------------------------------------------------------------------------------------+
+; File Name                                                                                                                      ;
++--------------------------------------------------------------------------------------------------------------------------------+
+; /home/teoh/cpre381/cpre3810_Proj1Part2_SW/cpre3810_Proj1Part2/cpre3810-toolflow/internal/QuartusWork/output_files/toolflow.sof ;
++--------------------------------------------------------------------------------------------------------------------------------+
 
 
 +----------------------------------------+
@@ -93,8 +93,8 @@ https://fpgasoftware.intel.com/eula.
 +----------------+-----------------------+
 ; Option         ; Setting               ;
 +----------------+-----------------------+
-; JTAG usercode  ; 0x03E276EB            ;
-; Checksum       ; 0x03E276EB            ;
+; JTAG usercode  ; 0x033A1B48            ;
+; Checksum       ; 0x033A1B48            ;
 +----------------+-----------------------+
 
 
@@ -118,15 +118,15 @@ Info: Running Quartus Prime Assembler
     Info: Intel and sold by Intel or its authorized distributors.  Please
     Info: refer to the applicable agreement for further details, at
     Info: https://fpgasoftware.intel.com/eula.
-    Info: Processing started: Sat Oct 25 03:21:57 2025
+    Info: Processing started: Wed Nov 12 22:30:17 2025
 Info: Command: quartus_asm --read_settings_files=on --write_settings_files=off toolflow -c toolflow
 Warning (18236): Number of processors has not been specified which may cause overloading on shared machines.  Set the global assignment NUM_PARALLEL_PROCESSORS in your QSF to an appropriate value for best performance.
 Info (115031): Writing out detailed assembly data for power analysis
 Info (115030): Assembler is generating device programming files
 Info: Quartus Prime Assembler was successful. 0 errors, 1 warning
-    Info: Peak virtual memory: 844 megabytes
-    Info: Processing ended: Sat Oct 25 03:22:05 2025
-    Info: Elapsed time: 00:00:08
-    Info: Total CPU time (on all processors): 00:00:07
+    Info: Peak virtual memory: 812 megabytes
+    Info: Processing ended: Wed Nov 12 22:30:24 2025
+    Info: Elapsed time: 00:00:07
+    Info: Total CPU time (on all processors): 00:00:06
 
 
