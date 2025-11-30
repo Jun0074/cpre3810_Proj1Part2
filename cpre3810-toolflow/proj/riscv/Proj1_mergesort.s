@@ -17,12 +17,12 @@ addi x0, x0, 0
 addi x0, x0, 0
 addi x2, x2, 0xF0
 
-la x5, N
+lasw x5, N
 addi x0, x0, 0
 addi x0, x0, 0
 lw x10, 0(x5)            # N
-la x11, array            # base A
-la x12, temp             # base TMP
+lasw x11, array            # base A
+lasw x12, temp             # base TMP
 
 addi x13, x0, 1          # curr_size = 1
 
