@@ -197,6 +197,7 @@ telling:
 		add  t2,    t3, t2         # addu    $2,$3,$2
         lw   t3, 48(fp)            # lw      $3,48($fp)
         addi x0, x0, 0
+		addi x0, x0, 0
 		sw   t3,  0(t2)            # sw      $3,0($2)
         mv   sp,    fp             # move    $sp,$fp
         addi x0, x0, 0
