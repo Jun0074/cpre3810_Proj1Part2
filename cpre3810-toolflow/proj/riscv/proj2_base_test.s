@@ -15,6 +15,7 @@ addi x3, x0, -3          # x3 = -3
 addi x4, x0, 0           # x4 = 0
 
 # ---- Arithmetic operations ----
+addi x0, x0, 0           # NOP
 add x5, x1, x2           # x5 = 5 + 10 = 15
 sub x6, x2, x1           # x6 = 10 - 5 = 5
 slt x7, x3, x2           # x7 = 1  (since -3 < 10)
